@@ -7,8 +7,10 @@ import { UserProfile } from "./types/UserProfiles";
 export const App: FC = () => {
   const [userProfiles, setUserProfiles] = useState<Array<UserProfile>>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
   const onClickFetchUser = () => {
     setLoading(true);
+    setError(false);
     axios
       .get<Array<User>>("https://jsonplaceholder.typicode.com/users")
       .then((res) => {
@@ -20,7 +22,9 @@ export const App: FC = () => {
         }));
         setUserProfiles(data);
       })
-      .catch(() => {})
+      .catch(() => {
+        setError(true);
+      })
       .finally(() => {
         setLoading(false);
       });
@@ -28,9 +32,18 @@ export const App: FC = () => {
   return (
     <div>
       <button onClick={onClickFetchUser}>データ取得</button>
-      {userProfiles.map((user) => (
-        <UserCard key={user.id} user={user} />
-      ))}
+      <br />
+      {error ? (
+        <p style={{ color: "red" }}>データ取得に失敗</p>
+      ) : loading ? (
+        <p>loading...</p>
+      ) : (
+        <>
+          {userProfiles.map((user) => (
+            <UserCard key={user.id} user={user} />
+          ))}
+        </>
+      )}
     </div>
   );
 };
